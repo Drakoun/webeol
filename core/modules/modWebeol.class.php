@@ -1,6 +1,6 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) <year>  <name of author>
+/* Webeol
+ * Copyright (C) 2015  Boccara David <davidboccara333@yahoo.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +17,18 @@
  */
 
 /**
- * 	\defgroup	mymodule	MyModule module
- * 	\brief		MyModule module descriptor.
- * 	\file		core/modules/modMyModule.class.php
- * 	\ingroup	mymodule
- * 	\brief		Description and activation file for module MyModule
+ * 	\defgroup	webeol	Webeol module
+ * 	\brief		Webeol module descriptor.
+ * 	\file		core/modules/modWebeol.class.php
+ * 	\ingroup	webeol
+ * 	\brief		Description and activation file for module Webeol
  */
 include_once DOL_DOCUMENT_ROOT . "/core/modules/DolibarrModules.class.php";
 
 /**
- * Description and activation class for module MyModule
+ * Description and activation class for module Webeol
  */
-class modMyModule extends DolibarrModules
+class modWebeol extends DolibarrModules
 {
 
 	/**
@@ -45,9 +45,9 @@ class modMyModule extends DolibarrModules
 		// Id for module (must be unique).
 		// Use a free id here
 		// (See http://wiki.dolibarr.org/index.php/List_of_modules_id for available ranges).
-		$this->numero = 10000;
+		$this->numero = 10998;
 		// Key text used to identify module (for permissions, menus, etc...)
-		$this->rights_class = 'mymodule';
+		$this->rights_class = 'webeol';
 
 		// Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
 		// It is used to group modules in module setup page
@@ -59,9 +59,9 @@ class modMyModule extends DolibarrModules
 		// Module description
 		// used if translation string 'ModuleXXXDesc' not found
 		// (where XXX is value of numeric property 'numero' of module)
-		$this->description = "Description of module MyModule";
+		$this->description = "Description of module Webeol";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = 'development';
+		$this->version = '0.1';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -73,11 +73,11 @@ class modMyModule extends DolibarrModules
 		// use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png
 		// use this->picto='pictovalue@module'
-		$this->picto = 'mymodule@mymodule'; // mypicto@mymodule
+		$this->picto = 'webeol@webeol'; // mypicto@webeol
 		// Defined all module parts (triggers, login, substitutions, menus, css, etc...)
-		// for default path (eg: /mymodule/core/xxxxx) (0=disable, 1=enable)
-		// for specific path of parts (eg: /mymodule/core/modules/barcode)
-		// for specific css file (eg: /mymodule/css/mymodule.css.php)
+		// for default path (eg: /webeol/core/xxxxx) (0=disable, 1=enable)
+		// for specific path of parts (eg: /webeol/core/modules/barcode)
+		// for specific css file (eg: /webeol/css/webeol.css.php)
 		$this->module_parts = array(
 			// Set this to 1 if module has its own trigger directory
 			'triggers' => 1,
@@ -96,9 +96,9 @@ class modMyModule extends DolibarrModules
 			// Set this to 1 if module has its own models directory
 			//'models' => 0,
 			// Set this to relative path of css if module has its own css file
-			'css' => array('mymodule/css/mycss.css.php'),
+			//'css' => array('webeol/css/mycss.css.php'),
 			// Set this to relative path of js file if module must load a js on all pages
-			// 'js' => array('mymodule/js/mymodule.js'),
+			// 'js' => array('webeol/js/webeol.js'),
 			// Set here all hooks context managed by module
 			// 'hooks' => array('hookcontext1','hookcontext2'),
 			// To force the default directories names
@@ -111,19 +111,19 @@ class modMyModule extends DolibarrModules
 			// 'workflow' => array(
 			//     'WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2' => array(
 			//         'enabled' => '! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)',
-			//         'picto' => 'yourpicto@mymodule',
+			//         'picto' => 'yourpicto@webeol',
 			//         'warning' => 'WarningTextTranslationKey',
 			//      ),
 			// ),
 		);
 
 		// Data directories to create when module is enabled.
-		// Example: this->dirs = array("/mymodule/temp");
+		// Example: this->dirs = array("/webeol/temp");
 		$this->dirs = array();
 
 		// Config pages. Put here list of php pages
-		// stored into mymodule/admin directory, used to setup module.
-		$this->config_page_url = array("admin_mymodule.php@mymodule");
+		// stored into webeol/admin directory, used to setup module.
+		$this->config_page_url = array("admin_webeol.php@webeol");
 
 		// Dependencies
 		// A condition to hide module
@@ -139,8 +139,8 @@ class modMyModule extends DolibarrModules
 		$this->phpmin = array(5, 3);
 		// Minimum version of Dolibarr required by module
 		$this->need_dolibarr_version = array(3, 2);
-		// Language files list (langfiles@mymodule)
-		$this->langfiles = array("mymodule@mymodule");
+		// Language files list (langfiles@webeol)
+		$this->langfiles = array("webeol@webeol");
 		// Constants
 		// List of particular constants to add when module is enabled
 		// (name, type ['chaine' or ?], value, description, visibility, entity ['current' or 'allentities'], delete on unactive)
@@ -168,11 +168,12 @@ class modMyModule extends DolibarrModules
 		// Example:
 		$this->tabs = array(
 			//	// To add a new tab identified by code tabname1
-			//	'objecttype:+tabname1:Title1:langfile@mymodule:$user->rights->mymodule->read:/mymodule/mynewtab1.php?id=__ID__',
+			//	'objecttype:+tabname1:Title1:langfile@webeol:$user->rights->webeol->read:/webeol/mynewtab1.php?id=__ID__',
 			//	// To add another new tab identified by code tabname2
-			//	'objecttype:+tabname2:Title2:langfile@mymodule:$user->rights->othermodule->read:/mymodule/mynewtab2.php?id=__ID__',
+			//	'objecttype:+tabname2:Title2:langfile@webeol:$user->rights->othermodule->read:/webeol/mynewtab2.php?id=__ID__',
 			//	// To remove an existing tab identified by code tabname
-			//	'objecttype:-tabname'
+			'thirdparty:-customer',
+			'thirdparty:+tabProspect:wlProspect:webeol@webeol:$user->rights->webeol->telepro:/webeol/webeol/comm/card.php?id=__ID__',
 		);
 		// 'categories_x'	  to add a tab in category view (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
 		// 'contact'          to add a tab in contact view
@@ -195,16 +196,16 @@ class modMyModule extends DolibarrModules
 		// 'user'             to add a tab in user view
 
 		// Dictionaries
-		if (! isset($conf->mymodule->enabled)) {
-			$conf->mymodule=new stdClass();
-			$conf->mymodule->enabled = 0;
+		if (! isset($conf->webeol->enabled)) {
+			$conf->webeol=new stdClass();
+			$conf->webeol->enabled = 0;
 		}
 		$this->dictionaries = array();
 		/* Example:
 		  // This is to avoid warnings
-		  if (! isset($conf->mymodule->enabled)) $conf->mymodule->enabled=0;
+		  if (! isset($conf->webeol->enabled)) $conf->webeol->enabled=0;
 		  $this->dictionaries=array(
-			  'langs'=>'mymodule@mymodule',
+			  'langs'=>'webeol@webeol',
 			  // List of tables we want to see into dictonnary editor
 			  'tabname'=>array(
 				  MAIN_DB_PREFIX."table1",
@@ -234,9 +235,9 @@ class modMyModule extends DolibarrModules
 			  'tabrowid'=>array("rowid","rowid","rowid"),
 			  // Condition to show each dictionary
 			  'tabcond'=>array(
-				  $conf->mymodule->enabled,
-				  $conf->mymodule->enabled,
-				  $conf->mymodule->enabled
+				  $conf->webeol->enabled,
+				  $conf->webeol->enabled,
+				  $conf->webeol->enabled
 			  )
 		  );
 		 */
@@ -247,7 +248,7 @@ class modMyModule extends DolibarrModules
 		// Example:
 		$this->boxes = array(
 			0 => array(
-				'file' => 'mybox@mymodule',
+				'file' => 'mybox@webeol',
 				'note' => '',
 				'enabledbydefaulton' => 'Home'
 			)
@@ -273,6 +274,10 @@ class modMyModule extends DolibarrModules
 		//// if ($user->rights->permkey->level1->level2)
 		//$this->rights[$r][5] = 'level2';
 		//$r++;
+		$this->rights[$r][0] = 109981;
+		$this->rights[$r][1] = 'AccesTelepro';
+		$this->rights[$r][3] = 0;
+		$this->rights[$r][4] = 'telepro';
 		// Main menu entries
 
 		// Add here entries to declare new menus
@@ -284,20 +289,20 @@ class modMyModule extends DolibarrModules
 		//	// This is a Top menu entry
 		//	'type'=>'top',
 		// Menu's title. FIXME: use a translation key
-		//	'titre'=>'MyModule top menu',
+		//	'titre'=>'Webeol top menu',
 		// This menu's mainmenu ID
-		//	'mainmenu'=>'mymodule',
+		//	'mainmenu'=>'webeol',
 		// This menu's leftmenu ID
-		//	'leftmenu'=>'mymodule',
-		//	'url'=>'/mymodule/pagetop.php',
+		//	'leftmenu'=>'webeol',
+		//	'url'=>'/webeol/pagetop.php',
 		//	// Lang file to use (without .lang) by module.
 		//	// File must be in langs/code_CODE/ directory.
 		//	'langs'=>'mylangfile',
 		//	'position'=>100,
 		//	// Define condition to show or hide menu entry.
-		//	// Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
-		//	'enabled'=>'$conf->mymodule->enabled',
-		//	// Use 'perms'=>'$user->rights->mymodule->level1->level2'
+		//	// Use '$conf->webeol->enabled' if entry must be visible if module is enabled.
+		//	'enabled'=>'$conf->webeol->enabled',
+		//	// Use 'perms'=>'$user->rights->webeol->level1->level2'
 		//	// if you want your menu with a permission rules
 		//	'perms'=>'1',
 		//	'target'=>'',
@@ -311,20 +316,20 @@ class modMyModule extends DolibarrModules
 		//	// This is a Left menu entry
 		//	'type'=>'left',
 		// Menu's title. FIXME: use a translation key
-		//	'titre'=>'MyModule left menu',
+		//	'titre'=>'Webeol left menu',
 		// This menu's mainmenu ID
-		//	'mainmenu'=>'mymodule',
+		//	'mainmenu'=>'webeol',
 		// This menu's leftmenu ID
-		//	'leftmenu'=>'mymodule',
-		//	'url'=>'/mymodule/pagelevel1.php',
+		//	'leftmenu'=>'webeol',
+		//	'url'=>'/webeol/pagelevel1.php',
 		//	// Lang file to use (without .lang) by module.
 		//	// File must be in langs/code_CODE/ directory.
 		//	'langs'=>'mylangfile',
 		//	'position'=>100,
 		//	// Define condition to show or hide menu entry.
-		//	// Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
-		//	'enabled'=>'$conf->mymodule->enabled',
-		//	// Use 'perms'=>'$user->rights->mymodule->level1->level2'
+		//	// Use '$conf->webeol->enabled' if entry must be visible if module is enabled.
+		//	'enabled'=>'$conf->webeol->enabled',
+		//	// Use 'perms'=>'$user->rights->webeol->level1->level2'
 		//	// if you want your menu with a permission rules
 		//	'perms'=>'1',
 		//	'target'=>'',
@@ -339,21 +344,21 @@ class modMyModule extends DolibarrModules
 		//	// This is a Left menu entry
 		//	'type'=>'left',
 		// Menu's title. FIXME: use a translation key
-		//	'titre'=>'MyModule left menu',
+		//	'titre'=>'Webeol left menu',
 		// This menu's mainmenu ID
 		//	'mainmenu'=>'mainmenucode',
 		// This menu's leftmenu ID
-		//	'leftmenu'=>'mymodule',
-		//	'url'=>'/mymodule/pagelevel2.php',
+		//	'leftmenu'=>'webeol',
+		//	'url'=>'/webeol/pagelevel2.php',
 		//	// Lang file to use (without .lang) by module.
 		//	// File must be in langs/code_CODE/ directory.
 		//	'langs'=>'mylangfile',
 		//	'position'=>100,
 		//	// Define condition to show or hide menu entry.
-		//	// Use '$conf->mymodule->enabled' if entry must be visible if module is enabled.
+		//	// Use '$conf->webeol->enabled' if entry must be visible if module is enabled.
 		//	// Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-		//	'enabled'=>'$conf->mymodule->enabled',
-		//	// Use 'perms'=>'$user->rights->mymodule->level1->level2'
+		//	'enabled'=>'$conf->webeol->enabled',
+		//	// Use 'perms'=>'$user->rights->webeol->level1->level2'
 		//	// if you want your menu with a permission rules
 		//	'perms'=>'1',
 		//	'target'=>'',
@@ -494,13 +499,13 @@ class modMyModule extends DolibarrModules
 	/**
 	 * Create tables, keys and data required by module
 	 * Files llx_table1.sql, llx_table1.key.sql llx_data.sql with create table, create keys
-	 * and create data commands must be stored in directory /mymodule/sql/
+	 * and create data commands must be stored in directory /webeol/sql/
 	 * This function is called by this->init
 	 *
 	 * 	@return		int		<=0 if KO, >0 if OK
 	 */
 	private function loadTables()
 	{
-		return $this->_load_tables('/mymodule/sql/');
+		return $this->_load_tables('/webeol/sql/');
 	}
 }

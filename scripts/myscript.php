@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) <year>  <name of author>
+/* Webeol
+ * Copyright (C) 2015  Boccara David <davidboccara333@yahoo.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 /**
  *	\file		scripts/myscript.php
- *	\ingroup	mymodule
+ *	\ingroup	webeol
  *	\brief		This file is an example command line script
  *				Put some comments here
  */

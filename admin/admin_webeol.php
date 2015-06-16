@@ -1,6 +1,6 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) <year>  <name of author>
+/* Webeol
+ * Copyright (C) 2015  Boccara David <davidboccara333@yahoo.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  */
 
 /**
- * 	\file		admin/mymodule.php
- * 	\ingroup	mymodule
+ * 	\file		admin/webeol.php
+ * 	\ingroup	webeol
  * 	\brief		This file is an example module setup page
  * 				Put some comments here
  */
@@ -32,10 +32,10 @@ global $langs, $user;
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
-require_once '../lib/mymodule.lib.php';
+require_once '../lib/webeol.lib.php';
 //require_once "../class/myclass.class.php";
 // Translations
-$langs->load("mymodule@mymodule");
+$langs->load("webeol@webeol");
 
 // Access control
 if (! $user->admin) {
@@ -52,7 +52,7 @@ $action = GETPOST('action', 'alpha');
 /*
  * View
  */
-$page_name = "MyModuleSetup";
+$page_name = "WebeolSetup";
 llxHeader('', $langs->trans($page_name));
 
 // Subheader
@@ -61,17 +61,17 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 print_fiche_titre($langs->trans($page_name), $linkback);
 
 // Configuration header
-$head = mymoduleAdminPrepareHead();
+$head = webeolAdminPrepareHead();
 dol_fiche_head(
 	$head,
 	'settings',
-	$langs->trans("Module10000Name"),
+	$langs->trans("Module10998Name"),
 	0,
-	"mymodule@mymodule"
+	"webeol@webeol"
 );
 
 // Setup page goes here
-echo $langs->trans("MyModuleSetupPage");
+echo $langs->trans("WebeolSetupPage");
 
 // Page end
 dol_fiche_end();

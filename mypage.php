@@ -1,6 +1,6 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) <year>  <name of author>
+/* Webeol
+ * Copyright (C) 2015  Boccara David <davidboccara333@yahoo.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 /**
  *	\file		mypage.php
- *	\ingroup	mymodule
+ *	\ingroup	webeol
  *	\brief		This file is an example php page
  *				Put some comments here
  */
@@ -68,10 +68,10 @@ if (! $res) {
 
 global $db, $langs, $user;
 
-dol_include_once('/mymodule/class/myclass.class.php');
+dol_include_once('/webeol/class/myclass.class.php');
 
 // Load translation files required by the page
-$langs->load("mymodule@mymodule");
+$langs->load("webeol@webeol");
 
 // Get parameters
 $id = GETPOST('id', 'int');

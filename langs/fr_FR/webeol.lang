@@ -1,5 +1,5 @@
-# <one line to give the program's name and a brief idea of what it does.>
-# Copyright (C) <year>  <name of author>
+# Webeol
+# Copyright (C) 2015  Boccara David <davidboccara333@yahoo.fr>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,26 +20,34 @@
 
 # Module label 'ModuleXXXName'
 # (where XXX is value of numeric property 'numero' of module)
-Module10000Name = Mon module
+Module10998Name = Webeol
 # Module description 'ModuleXXXDesc'
 # (where XXX is value of numeric property 'numero' of module)
-Module10000Desc = Description de mon module
+Module10998Desc = Webeol
+
+Permission109981=Accès Télépro
 
 #
 # Page d'administration
 #
-MyModuleSetup = Configuration du module mon module
+WebeolSetup = Configuration du module mon module
 Settings = Réglages
-MyModuleSetupPage = Page de réglage de mon module
+WebeolSetupPage = Page de réglage de mon module
 
 #
 # Page À propos
 #
 About = À propos
-MyModuleAbout = À propos de mon module
-MyModuleAboutPage = Page à propos de mon module
+WebeolAbout = À propos de mon module
+WebeolAboutPage = Page à propos de mon module
 
 #
 # Page d'exemple
 #
 MyPageName = Nom de ma page
+
+
+#
+# Onglet
+#
+wlProspect = Prospect Télépro
