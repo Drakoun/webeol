@@ -172,7 +172,7 @@ class modWebeol extends DolibarrModules
 			//	// To add another new tab identified by code tabname2
 			//	'objecttype:+tabname2:Title2:langfile@webeol:$user->rights->othermodule->read:/webeol/mynewtab2.php?id=__ID__',
 			//	// To remove an existing tab identified by code tabname
-			'thirdparty:-customer',
+			//'thirdparty:-customer',
 			'thirdparty:+tabProspect:wlProspect:webeol@webeol:$user->rights->webeol->telepro:/webeol/webeol/comm/card.php?id=__ID__',
 		);
 		// 'categories_x'	  to add a tab in category view (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)

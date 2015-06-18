@@ -28,9 +28,9 @@
  *       \brief      Page to show customer card of a third party
  */
 
-$res = @include "../../main.inc.php"; // From htdocs directory
+$res = @include "../../../main.inc.php"; // From htdocs directory
 if (! $res) {
-	$res = @include "../../../main.inc.php"; // From "custom" directory
+	$res = @include "../../../../main.inc.php"; // From "custom" directory
 }
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
@@ -80,7 +80,16 @@ $extrafields = new ExtraFields($db);
 // fetch optionals attributes and labels
 $extralabels=$extrafields->fetch_name_optionals_label($object->table_element);
 
+// email
 $modelmail='thirdparty';
+
+// Ajouter les references personnalisees des boutons precedent et suivant
+if ($liste = $_SESSION[liste])
+{
+	$key = array_search($id, $liste);
+	$object->ref_previous = $liste[$key - 1];
+	$object->ref_next = $liste[$key + 1];
+}
 
 /*
  * Actions
@@ -280,8 +289,34 @@ if ($id > 0)
 	print '<table class="border" width="100%">';
 
 	print '<tr><td width="30%">'.$langs->trans("ThirdPartyName").'</td><td width="70%" colspan="3">';
-	$object->next_prev_filter="te.client in (1,2,3)";
-	print $form->showrefnav($object,'socid','',($user->societe_id?0:1),'rowid','nom','','');
+	
+	// Redéfinition des boutons precedent et suivant en mettant le corps de la fonction showrefnav et en enlevant une fonction appelee et en remplacant les parametres
+	$ret='';
+	$moreparam = '';
+	$previous_ref = $object->ref_previous?'<a data-role="button" data-icon="arrow-l" data-iconpos="left" href="'.$_SERVER["PHP_SELF"].'?'.socid.'='.urlencode($object->ref_previous).$moreparam.'">'.(empty($conf->dol_use_jmobile)?img_picto($langs->trans("Previous"),'previous.png'):'&nbsp;').'</a>':'';
+	$next_ref     = $object->ref_next?'<a data-role="button" data-icon="arrow-r" data-iconpos="right" href="'.$_SERVER["PHP_SELF"].'?'.socid.'='.urlencode($object->ref_next).$moreparam.'">'.(empty($conf->dol_use_jmobile)?img_picto($langs->trans("Next"),'next.png'):'&nbsp;').'</a>':'';
+	
+	//print "xx".$previous_ref."x".$next_ref;
+	if ($previous_ref || $next_ref) {
+		$ret.='<table class="nobordernopadding" width="100%"><tr class="nobordernopadding"><td class="nobordernopadding">';
+	}
+	
+	$ret.=dol_htmlentities($object->nom);
+	
+	
+	
+	if (($user->societe_id?0:1) && ($previous_ref || $next_ref))
+	{
+		$ret.='</td><td class="nobordernopadding" align="center" width="20">'.$previous_ref.'</td>';
+		$ret.='<td class="nobordernopadding" align="center" width="20">'.$next_ref;
+	}
+	if ($previous_ref || $next_ref)
+	{
+		$ret.='</td></tr></table>';
+	}
+	print $ret;
+	
+	
 	print '</td></tr>';
 
 	// Prospect/Customer
@@ -339,7 +374,7 @@ if ($id > 0)
 		print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
 		print $langs->trans('ProspectLevel');
 		print '<td>';
-		if ($action != 'editlevel' && $user->rights->societe->creer) print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editlevel&amp;socid='.$object->id.'">'.img_edit($langs->trans('Modify'),1).'</a></td>';
+		if ($action != 'editlevel') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editlevel&amp;socid='.$object->id.'">'.img_edit($langs->trans('Modify'),1).'</a></td>';
 		print '</tr></table>';
 		print '</td><td colspan="3">';
 		if ($action == 'editlevel')
@@ -930,7 +965,7 @@ if ($id > 0)
 		if ($conf->global->MAIN_MULTILANGS && empty($newlang))
 			$newlang = $object->client->default_lang;
 		
-		$model_exists=$formmail->isEMailTemplate($modelmail, $user, $newlang);var_dump($model_exists);
+		$model_exists=$formmail->isEMailTemplate($modelmail, $user, $newlang);
 		if ($model_exists<0) 
 		{
 			setEventMessage($formmail->error,'errors');
