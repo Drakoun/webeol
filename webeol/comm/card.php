@@ -91,6 +91,16 @@ if ($liste = $_SESSION[liste])
 	$object->ref_next = $liste[$key + 1];
 }
 
+// Verification si l'utilisateur est un télépro et si ce prospect lui est associé
+if (!$user->admin && $user->rights->webeol->telepro)
+{
+	$object->fetch($id);
+	if ($user->id != $object->array_options ["options_telepro"])
+	{
+		accessforbidden();
+	}
+}
+
 /*
  * Actions
  */
@@ -133,16 +143,32 @@ if ($action == 'update')
 	$object->array_options ["options_dtc"] = dol_mktime($_POST["options_dtchour"], $_POST["options_dtcmin"], 0, $_POST["options_dtcmonth"], $_POST["options_dtcday"], $_POST["options_dtcyear"]);
 	$object->array_options ["options_tsp"] = GETPOST("options_tsp");
 	$object->array_options ["options_com"] = GETPOST("options_com");
-	
+
 	// Date et heure d'appel, Nombre d'appels en automatique si le dernier appel s'est fait au moins il y a 4 heures
-	if (strtotime($object->array_options['options_dda']) + (4* 60 * 60) < time()) 
+	if (strtotime($object->array_options['options_dda']) + (4 * 60 * 60) < dol_now())
 	{
-		$datetime = new Datetime();
-		$object->array_options['options_dda'] = dol_mktime($datetime->format('H'), $datetime->format('i'), $datetime->format('s') , $datetime->format('m'), $datetime->format('d'), $datetime->format('Y'));
-		$object->array_options['options_nba'] += 1;		
+		$object->array_options['options_dda'] = dol_now();
+		$object->array_options['options_nba'] += 1;
+		
+		// ajout dans la table call_history pour l'historique des appels
+		$object->db->begin();
+		$sql = "INSERT INTO ".MAIN_DB_PREFIX."cust_call_history_extrafields (fk_object,dda,rda) ";
+		$sql .= "VALUES (".$id.",'".$object->db->idate($object->array_options['options_dda'])."','".$object->array_options['options_rda']."')";
+		dol_syslog(get_class($object)."::insertCustCallHistoryExtraFields insert", LOG_DEBUG);
+		$resql = $object->db->query($sql);
+		if (! $resql)
+		{
+			$object->error=$object->db->lasterror();
+			$object->db->rollback();
+			var_dump($error);
+		}
+		else
+		{
+			$object->db->commit();
+		}
 	}
 	// Sinon il faut changer le type de la date de string à time
-	else 
+	else
 	{
 		$object->array_options['options_dda'] = strtotime($object->array_options['options_dda']);
 	}
@@ -290,31 +316,39 @@ if ($id > 0)
 
 	print '<tr><td width="30%">'.$langs->trans("ThirdPartyName").'</td><td width="70%" colspan="3">';
 	
-	// Redéfinition des boutons precedent et suivant en mettant le corps de la fonction showrefnav et en enlevant une fonction appelee et en remplacant les parametres
-	$ret='';
-	$moreparam = '';
-	$previous_ref = $object->ref_previous?'<a data-role="button" data-icon="arrow-l" data-iconpos="left" href="'.$_SERVER["PHP_SELF"].'?'.socid.'='.urlencode($object->ref_previous).$moreparam.'">'.(empty($conf->dol_use_jmobile)?img_picto($langs->trans("Previous"),'previous.png'):'&nbsp;').'</a>':'';
-	$next_ref     = $object->ref_next?'<a data-role="button" data-icon="arrow-r" data-iconpos="right" href="'.$_SERVER["PHP_SELF"].'?'.socid.'='.urlencode($object->ref_next).$moreparam.'">'.(empty($conf->dol_use_jmobile)?img_picto($langs->trans("Next"),'next.png'):'&nbsp;').'</a>':'';
-	
-	//print "xx".$previous_ref."x".$next_ref;
-	if ($previous_ref || $next_ref) {
-		$ret.='<table class="nobordernopadding" width="100%"><tr class="nobordernopadding"><td class="nobordernopadding">';
-	}
-	
-	$ret.=dol_htmlentities($object->nom);
-	
-	
-	
-	if (($user->societe_id?0:1) && ($previous_ref || $next_ref))
+	if ($liste)
 	{
-		$ret.='</td><td class="nobordernopadding" align="center" width="20">'.$previous_ref.'</td>';
-		$ret.='<td class="nobordernopadding" align="center" width="20">'.$next_ref;
+		// Redéfinition des boutons precedent et suivant en mettant le corps de la fonction showrefnav et en enlevant une fonction appelee et en remplacant les parametres
+		$ret='';
+		$moreparam = '';
+		$previous_ref = $object->ref_previous?'<a data-role="button" data-icon="arrow-l" data-iconpos="left" href="'.$_SERVER["PHP_SELF"].'?'.socid.'='.urlencode($object->ref_previous).$moreparam.'">'.(empty($conf->dol_use_jmobile)?img_picto($langs->trans("Previous"),'previous.png'):'&nbsp;').'</a>':'';
+		$next_ref     = $object->ref_next?'<a data-role="button" data-icon="arrow-r" data-iconpos="right" href="'.$_SERVER["PHP_SELF"].'?'.socid.'='.urlencode($object->ref_next).$moreparam.'">'.(empty($conf->dol_use_jmobile)?img_picto($langs->trans("Next"),'next.png'):'&nbsp;').'</a>':'';
+		
+		//print "xx".$previous_ref."x".$next_ref;
+		if ($previous_ref || $next_ref) {
+			$ret.='<table class="nobordernopadding" width="100%"><tr class="nobordernopadding"><td class="nobordernopadding">';
+		}
+		
+		$ret.=dol_htmlentities($object->nom);
+		
+		
+		
+		if (($user->societe_id?0:1) && ($previous_ref || $next_ref))
+		{
+			$ret.='</td><td class="nobordernopadding" align="center" width="20">'.$previous_ref.'</td>';
+			$ret.='<td class="nobordernopadding" align="center" width="20">'.$next_ref;
+		}
+		if ($previous_ref || $next_ref)
+		{
+			$ret.='</td></tr></table>';
+		}
+		print $ret;
 	}
-	if ($previous_ref || $next_ref)
+	else
 	{
-		$ret.='</td></tr></table>';
+		$object->next_prev_filter="te.client in (1,2,3)";
+		print $form->showrefnav($object,'socid','',($user->societe_id?0:1),'rowid','nom','','');
 	}
-	print $ret;
 	
 	
 	print '</td></tr>';
@@ -461,7 +495,7 @@ if ($id > 0)
 		
 		// Date et heure d'appel
 		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Date et heure d\'appel</td></tr></table></td><td colspan="3">';
-		print date("d-m-Y H:i:s", strtotime($object->array_options ['options_dda']));
+		print dol_print_date($object->array_options["options_dda"],'dayhourtextshort');
 		print '</td></tr>';
 
 		// Résultat d'appel
@@ -1007,7 +1041,34 @@ if ($id > 0)
 	}
 
 	print '</div>';
-
+	
+	if ($object->array_options ['options_rda'] == 'Rendez-vous pris' || $object->array_options ['options_rda'] == 'Envoi de mail de présentation' || $object->array_options ['options_rda'] =='Entretien téléphonique')
+	{
+		print '<h2>Texte à copier-coller dans la description, lors de la création d\'un événement, pour que ces informations apparaissent dans l\'agenda</h2>';
+		print '<div class="pair nodrag nodrop">';
+		print $langs->trans("ThirdPartyName").' : '.$object->nom.'<br>';
+		print $langs->trans('Address'). ' : '.$object->address.'<br>';
+		print $langs->trans('Zip').' / '.$langs->trans('Town').' : '.$object->zip.' / '.$object->town.'<br>';
+		print $langs->trans('ProspectLevel').' : '.$object->getLibProspLevel().'<br>';
+		print $langs->trans('EMail').' : '.$object->email.'<br>';
+		print $langs->trans("Web").' : '.$object->url.'<br>';
+		print $langs->trans('Phone').' : '.$object->phone.'<br>';
+		print 'Rubrique : '.$object->array_options ['options_ru'].'<br>';
+		print 'Nom du responsable contacté : '.$object->array_options["options_nrc"].'<br>';
+		print 'Campagne commercial : '.$object->array_options ['options_cc'].'<br>';
+		print 'Budget global pages jaunes : '.$object->array_options ['options_bgpj'].'<br>';
+		print 'Retombées pages jaunes : '.$object->array_options ['options_rpja'].'<br>';
+		print 'Budget site internet : '.$object->array_options ['options_bsi'].'<br>';
+		print 'Retombées sites internet : '.$object->array_options ['options_rsi'].'<br>';
+		print 'Engagement restant sur site internet : '.$object->array_options ['options_ersi'].'<br>';
+		print 'Rendez vous pris le : '.$object->array_options ['options_rvp'].'<br>';
+		print 'Rendez-vous confirmé : '.$object->array_options ['options_rvc'].'<br>';
+		print 'Date de confirmation : '.$object->array_options ['options_dtc'].'<br>';
+		print 'Type SONCAS de prospect : '.$object->array_options ['options_tsp'].'<br>';
+		print 'Commentaire : '.$object->array_options ['options_com'].'<br>';
+		print '</div><br>';
+	}
+		
 	if (! empty($conf->global->MAIN_REPEATCONTACTONEACHTAB))
 	{
 		// List of contacts
