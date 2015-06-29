@@ -25,7 +25,8 @@ Module10998Name = Webeol
 # (where XXX is value of numeric property 'numero' of module)
 Module10998Desc = Webeol
 
-Permission109981=Accès Télépro
+Permission109981=Onglet Prospect Télépro
+Permission109982=Accès Télépro
 
 #
 # Page d'administration
