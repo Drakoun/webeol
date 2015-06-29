@@ -278,6 +278,7 @@ class modWebeol extends DolibarrModules
 		$this->rights[$r][1] = 'AccesTelepro';
 		$this->rights[$r][3] = 0;
 		$this->rights[$r][4] = 'telepro';
+		$r++;
 		$this->rights[$r][0] = 109982;
 		$this->rights[$r][1] = 'ProspectTelepro';
 		$this->rights[$r][3] = 1;
