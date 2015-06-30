@@ -61,7 +61,7 @@ class modWebeol extends DolibarrModules
 		// (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Description of module Webeol";
 		// Possible values for version are: 'development', 'experimental' or version
-		$this->version = '0.1';
+		$this->version = '1.0';
 		// Key used in llx_const table to save module status enabled/disabled
 		// (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -172,8 +172,18 @@ class modWebeol extends DolibarrModules
 			//	// To add another new tab identified by code tabname2
 			//	'objecttype:+tabname2:Title2:langfile@webeol:$user->rights->othermodule->read:/webeol/mynewtab2.php?id=__ID__',
 			//	// To remove an existing tab identified by code tabname
-			//'thirdparty:-customer',
+			'thirdparty:-card',
+			'thirdparty:-customer',
+			'thirdparty:-tabAgefodd',
+			'thirdparty:-consumption',
+			'thirdparty:-notify',
+			'thirdparty:+card:Card::!$user->rights->webeol->telepro:/societe/soc.php?socid=__ID__',
+			'thirdparty:+customer:Customer::!$user->rights->webeol->telepro:comm/card.php?id=__ID__',
 			'thirdparty:+tabProspect:wlProspect:webeol@webeol:$user->rights->webeol->prospecttelepro:/webeol/webeol/comm/card.php?id=__ID__',
+			'thirdparty:+tabAgefodd:AgfMenuSess:agefodd@agefodd:!$user->rights->webeol->telepro:/agefodd/session/list_soc.php?socid=__ID__',
+			'thirdparty:+consumption:Referers::!$user->rights->webeol->telepro:/societe/consumption.php?socid=__ID__',
+			'thirdparty:+notify:Notifications::!$user->rights->webeol->telepro:/societe/notify/fiche.php?socid=__ID__',
+			
 		);
 		// 'categories_x'	  to add a tab in category view (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
 		// 'contact'          to add a tab in contact view
@@ -279,10 +289,13 @@ class modWebeol extends DolibarrModules
 		$this->rights[$r][3] = 0;
 		$this->rights[$r][4] = 'telepro';
 		$r++;
+		
 		$this->rights[$r][0] = 109982;
 		$this->rights[$r][1] = 'ProspectTelepro';
 		$this->rights[$r][3] = 1;
 		$this->rights[$r][4] = 'prospecttelepro';
+		$r++;
+		
 		// Main menu entries
 
 		// Add here entries to declare new menus
@@ -370,6 +383,179 @@ class modWebeol extends DolibarrModules
 		//	// 0=Menu for internal users, 1=external users, 2=both
 		//	'user'=>2
 		//);
+		$r = 0;
+		
+		$this->menu[$r]=array(
+			'fk_menu' => 'fk_mainmenu=companies',
+			'type' => 'left',
+			'titre' => 'Prospects pages jaunes',
+			'leftmenu' => 'ProspectPJ',
+			'url' => '/mylist/mylist.php?code=ProspectsPagesJaunes',
+			'langs' => 'webeol@webeol',
+			'position' => 100,
+			'enabled' => '1',
+			'perms' => '$user->rights->webeol->telepro',
+			'target' => '',
+			'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=companies',
+				'type' => 'left',
+				'titre' => 'Prospects appli mobile',
+				'leftmenu' => 'ProspectAM',
+				'url' => '/mylist/mylist.php?code=ProspectsAppliMobile',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->rights->webeol->telepro',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=companies',
+				'type' => 'left',
+				'titre' => 'Ajouter prospect à',
+				'leftmenu' => 'AjouterProspect',
+				'url' => '',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->admin',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=companies,fk_leftmenu=AjouterProspect',
+				'type' => 'left',
+				'titre' => 'Karine',
+				'url' => '/mylist/mylist.php?code=APKarine',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->admin',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=companies,fk_leftmenu=AjouterProspect',
+				'type' => 'left',
+				'titre' => 'Laetitia',
+				'url' => '/mylist/mylist.php?code=APLaetitia',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->admin',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=companies,fk_leftmenu=AjouterProspect',
+				'type' => 'left',
+				'titre' => 'Lea',
+				'url' => '/mylist/mylist.php?code=APLea',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->admin',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=companies,fk_leftmenu=AjouterProspect',
+				'type' => 'left',
+				'titre' => 'Linda',
+				'url' => '/mylist/mylist.php?code=APLinda',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->admin',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=companies,fk_leftmenu=AjouterProspect',
+				'type' => 'left',
+				'titre' => 'Rebecca',
+				'url' => '/mylist/mylist.php?code=APRebecca',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->admin',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=companies,fk_leftmenu=AjouterProspect',
+				'type' => 'left',
+				'titre' => 'Romain',
+				'url' => '/mylist/mylist.php?code=APRomain',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->admin',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=companies',
+				'type' => 'left',
+				'titre' => 'Retirer prospect',
+				'leftmenu' => 'RetirerProspect',
+				'url' => '',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->admin',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => '0',
+				'type' => 'top',
+				'titre' => 'Agenda Google',
+				'url' => 'https://www.google.com/calendar',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '1',
+				'target' => '_blank',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => '0',
+				'type' => 'top',
+				'titre' => 'Arguments',
+				'url' => 'https://sites.google.com/a/webeol.fr/webeol-team/',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '1',
+				'target' => '_blank',
+				'user' => 0
+		);
+		$r++;
 
 		// Exports
 		$r = 0;

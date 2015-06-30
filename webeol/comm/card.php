@@ -358,14 +358,6 @@ if ($id > 0)
 	print $object->getLibCustProspStatut();
 	print '</td></tr>';
 
-	// Prefix
-    if (! empty($conf->global->SOCIETE_USEPREFIX))  // Old not used prefix field
-    {
-        print '<tr><td>'.$langs->trans("Prefix").'</td><td colspan="3">';
-	   print ($object->prefix_comm?$object->prefix_comm:'&nbsp;');
-	   print '</td></tr>';
-    }
-
 	// Address
 	print '<tr><td valign="top">'.$langs->trans('Address').'</td><td colspan="3">';
 	dol_print_address($object->address,'gmap','thirdparty',$object->id);
@@ -386,9 +378,6 @@ if ($id > 0)
 		else print ($img?$img.' ':'').$object->country;
 	}
 	print '</td></tr>';
-	
-	// Sales representative
-	include DOL_DOCUMENT_ROOT.'/societe/tpl/linesalesrepresentative.tpl.php';
 	
 	// Level of prospect
 	if ($object->client == 2 || $object->client == 3)

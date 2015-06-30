@@ -20,10 +20,10 @@
 
 # Module label 'ModuleXXXName'
 # (where XXX is value of numeric property 'numero' of module)
-Module10998Name = Webeol
+Module109981Name = Webeol
 # Module description 'ModuleXXXDesc'
 # (where XXX is value of numeric property 'numero' of module)
-Module10998Desc = Webeol
+Module109981Desc = Webeol
 
 Permission109981=Accès Télépro
 Permission109982=Onglet Prospect Télépro
