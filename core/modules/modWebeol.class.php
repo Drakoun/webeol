@@ -178,7 +178,7 @@ class modWebeol extends DolibarrModules
 			'thirdparty:-consumption',
 			'thirdparty:-notify',
 			'thirdparty:+card:Card::!$user->rights->webeol->telepro:/societe/soc.php?socid=__ID__',
-			'thirdparty:+customer:Customer::!$user->rights->webeol->telepro:comm/card.php?id=__ID__',
+			'thirdparty:+customer:Prospect/Client::!$user->rights->webeol->telepro:comm/card.php?id=__ID__',
 			'thirdparty:+tabProspect:wlProspect:webeol@webeol:$user->rights->webeol->prospecttelepro:/webeol/webeol/comm/card.php?id=__ID__',
 			'thirdparty:+tabAgefodd:AgfMenuSess:agefodd@agefodd:!$user->rights->webeol->telepro:/agefodd/session/list_soc.php?socid=__ID__',
 			'thirdparty:+consumption:Referers::!$user->rights->webeol->telepro:/societe/consumption.php?socid=__ID__',
@@ -255,14 +255,16 @@ class modWebeol extends DolibarrModules
 		// Boxes
 		// Add here list of php file(s) stored in core/boxes that contains class to show a box.
 		$this->boxes = array(); // Boxes list
-		// Example:
+		/*// Example:
 		$this->boxes = array(
 			0 => array(
 				'file' => 'mybox@webeol',
 				'note' => '',
 				'enabledbydefaulton' => 'Home'
 			)
-		);
+		);*/
+		$this->boxes[$r][1] = "box_webeolgooglemaps@webeol";
+		$r ++;
 
 		// Permissions
 		$this->rights = array(); // Permission array used by this module
@@ -386,7 +388,7 @@ class modWebeol extends DolibarrModules
 		$r = 0;
 		
 		$this->menu[$r]=array(
-			'fk_menu' => 'fk_mainmenu=companies',
+			'fk_menu' => 'fk_mainmenu=home',
 			'type' => 'left',
 			'titre' => 'Prospects pages jaunes',
 			'leftmenu' => 'ProspectPJ',
@@ -401,7 +403,7 @@ class modWebeol extends DolibarrModules
 		$r++;
 		
 		$this->menu[$r]=array(
-				'fk_menu' => 'fk_mainmenu=companies',
+				'fk_menu' => 'fk_mainmenu=home',
 				'type' => 'left',
 				'titre' => 'Prospects appli mobile',
 				'leftmenu' => 'ProspectAM',

@@ -52,3 +52,17 @@ MyPageName = Nom de ma page
 # Onglet
 #
 wlProspect = Prospect Télépro
+
+#
+# Box
+#
+ListOfMapsAvailable = Liste des cartes disponibles
+MapOfAllProspect = Carte de tous les prospects
+MapOfSelfProspect = Carte des prospects attribués
+MapOfJoannaProspect = Carte des prospects de Joanna
+MapOfStephaneProspect = Carte des prospects de Stephane
+MapOfPatriceProspect = Carte des prospects de Patrice
+MapOfCustomerContractExpire = Carte des clients où le contrat arrive à échéance
+MapOfJoannaRDV = Carte des rendez-vous de Joanna
+MapOfStephaneRDV = Carte des rendez-vous de Stephane
+MapOfPatriceRDV = Carte des rendez-vous de Patrice
