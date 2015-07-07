@@ -1,12 +1,6 @@
 <?php
-/* Copyright (C) 2001-2005 Rodolphe Quiedeville        <rodolphe@quiedeville.org>
- * Copyright (C) 2004-2014 Laurent Destailleur         <eldy@users.sourceforge.net>
- * Copyright (C) 2004      Eric Seigne                 <eric.seigne@ryxeo.com>
- * Copyright (C) 2006      Andre Cianfarani            <acianfa@free.fr>
- * Copyright (C) 2005-2012 Regis Houssin               <regis.houssin@capnetworks.com>
- * Copyright (C) 2008      Raphael Bertrand (Resultic) <raphael.bertrand@resultic.fr>
- * Copyright (C) 2010-2014 Juanjo Menent               <jmenent@2byte.es>
- * Copyright (C) 2013      Alexandre Spangaro          <alexandre.spangaro@gmail.com>
+/* Webeol
+ * Copyright (C) 2015  Boccara David <davidboccara333@yahoo.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,9 +17,9 @@
  */
 
 /**
- *       \file       htdocs/comm/card.php
- *       \ingroup    commercial compta
- *       \brief      Page to show customer card of a third party
+ *       \file       htdocs/custom/webeol/webeol/card.php
+ *       \ingroup    téléprospecteur fiche
+ *       \brief      Page to show teleprospecteur card of a third party
  */
 
 $res = @include "../../../main.inc.php"; // From htdocs directory
@@ -109,7 +103,7 @@ $parameters = array('socid' => $id);
 $reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some
 if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
-// Update third party
+// Update third party à partir du formulaire de modification du prospect
 if ($action == 'update')
 {
 	require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
@@ -117,14 +111,22 @@ if ($action == 'update')
 	$ret=$object->fetch($id);
 	$object->oldcopy=dol_clone($object);
 	
-	$object->email                 = GETPOST('email', 'custom', 0, FILTER_SANITIZE_EMAIL);
-	$object->url                   = GETPOST('url', 'custom', 0, FILTER_SANITIZE_URL);
+	if (GETPOST('name')) $object->name = GETPOST('name');
+	if (GETPOST('address')) $object->address = GETPOST('address');
+	if (GETPOST('zip')) $object->zip = GETPOST('zip');
+	if (GETPOST('town')) $object->town = GETPOST('town');
+	if (GETPOST('email', 'custom', 0, FILTER_SANITIZE_EMAIL) != null) $object->email = GETPOST('email', 'custom', 0, FILTER_SANITIZE_EMAIL);
+	if (GETPOST('url', 'custom', 0, FILTER_SANITIZE_EMAIL) != null) $object->url = GETPOST('url', 'custom', 0, FILTER_SANITIZE_URL);
+}
 
-	$object->forme_juridique_code  = GETPOST('forme_juridique_code', 'int');
-	$object->effectif_id           = GETPOST('effectif_id', 'int');
-	$object->typent_id             = GETPOST('typent_id');
+// Update third party à partir du formulaire de l'appel
+if ($action == 'appel')
+{
+	require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 
-	$object->commercial_id         = GETPOST('commercial_id', 'int');
+	$ret=$object->fetch($id);
+	$object->oldcopy=dol_clone($object);
+	
 	$object->default_lang          = GETPOST('default_lang');
 	
 	$object->array_options ["options_nrc"] = GETPOST("options_nrc");
@@ -172,8 +174,11 @@ if ($action == 'update')
 	{
 		$object->array_options['options_dda'] = strtotime($object->array_options['options_dda']);
 	}
-	
-	// Mise à jour dans la base
+}
+
+// Mise à jour dans la base
+if ($action == 'update' || $action == 'appel')
+{
 	$result = $object->update($id, $user, 1, $object->oldcopy->codeclient_modifiable(), $object->oldcopy->codefournisseur_modifiable(), 'update', 0);
 	if ($result <=  0)
 	{
@@ -305,50 +310,53 @@ if ($id > 0)
 
 	print '<div class="fichecenter"><div class="fichehalfleft">';
 
-	if (!empty($extrafields->attribute_label))
-	{
-		print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'">';
-		print '<input type="hidden" name="action" value="update">';
-		print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-	}
-
 	print '<table class="border" width="100%">';
 
-	print '<tr><td width="30%">'.$langs->trans("ThirdPartyName").'</td><td width="70%" colspan="3">';
+	// Formulaire de modification du prospect
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'">';
+	print '<input type="hidden" name="action" value="update">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 	
-	if ($liste)
-	{
-		// Redéfinition des boutons precedent et suivant en mettant le corps de la fonction showrefnav et en enlevant une fonction appelee et en remplacant les parametres
-		$ret='';
-		$moreparam = '';
-		$previous_ref = $object->ref_previous?'<a data-role="button" data-icon="arrow-l" data-iconpos="left" href="'.$_SERVER["PHP_SELF"].'?'.socid.'='.urlencode($object->ref_previous).$moreparam.'">'.(empty($conf->dol_use_jmobile)?img_picto($langs->trans("Previous"),'previous.png'):'&nbsp;').'</a>':'';
-		$next_ref     = $object->ref_next?'<a data-role="button" data-icon="arrow-r" data-iconpos="right" href="'.$_SERVER["PHP_SELF"].'?'.socid.'='.urlencode($object->ref_next).$moreparam.'">'.(empty($conf->dol_use_jmobile)?img_picto($langs->trans("Next"),'next.png'):'&nbsp;').'</a>':'';
-		
-		//print "xx".$previous_ref."x".$next_ref;
-		if ($previous_ref || $next_ref) {
-			$ret.='<table class="nobordernopadding" width="100%"><tr class="nobordernopadding"><td class="nobordernopadding">';
-		}
-		
-		$ret.=dol_htmlentities($object->nom);
-		
-		
-		
-		if (($user->societe_id?0:1) && ($previous_ref || $next_ref))
-		{
-			$ret.='</td><td class="nobordernopadding" align="center" width="20">'.$previous_ref.'</td>';
-			$ret.='<td class="nobordernopadding" align="center" width="20">'.$next_ref;
-		}
-		if ($previous_ref || $next_ref)
-		{
-			$ret.='</td></tr></table>';
-		}
-		print $ret;
+	print '<tr><td class="nowrap">';
+	print '<table width="100%" class="nobordernopadding">';
+	print '<tr><td width="30%">'.$langs->trans("ThirdPartyName").'</td>';
+	if ($action != 'editname') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editname&amp;id='.$object->id.'">'.img_edit($langs->trans('Modify'),1).'</a></td>';
+	print '</tr></table>';
+	print '<td width="70%" colspan="3">';
+	
+	
+	// Redéfinition des boutons precedent et suivant en mettant le corps de la fonction showrefnav (print $form->showrefnav($object,'socid','',($user->societe_id?0:1),'rowid','nom','','');) et en enlevant une fonction appelee et en remplacant les parametres
+	
+	if (!$liste) $object->next_prev_filter="te.client in (1,2,3)";
+	
+	$ret='';
+	$moreparam = '';
+	
+	if (!$liste) $object->load_previous_next_ref((isset($object->next_prev_filter)?$object->next_prev_filter:''),'rowid',0);
+	
+	$previous_ref = $object->ref_previous?'<a data-role="button" data-icon="arrow-l" data-iconpos="left" href="'.$_SERVER["PHP_SELF"].'?'.socid.'='.urlencode($object->ref_previous).$moreparam.'">'.(empty($conf->dol_use_jmobile)?img_picto($langs->trans("Previous"),'previous.png'):'&nbsp;').'</a>':'';
+	$next_ref     = $object->ref_next?'<a data-role="button" data-icon="arrow-r" data-iconpos="right" href="'.$_SERVER["PHP_SELF"].'?'.socid.'='.urlencode($object->ref_next).$moreparam.'">'.(empty($conf->dol_use_jmobile)?img_picto($langs->trans("Next"),'next.png'):'&nbsp;').'</a>':'';
+	
+	//print "xx".$previous_ref."x".$next_ref;
+	if ($previous_ref || $next_ref) {
+		$ret.='<table class="nobordernopadding" width="100%"><tr class="nobordernopadding"><td class="nobordernopadding">';
 	}
-	else
+	
+	if ($action == 'editname')
+		$ret .= '<input type="text" name="name" id="name" value="'.$object->name.'"><input type="submit" class="button" name="modify" value="'.$langs->trans("Modify").'">';
+	else			$ret.=dol_htmlentities($object->nom);
+	
+	if (($user->societe_id?0:1) && ($previous_ref || $next_ref) && $action != 'editnom')
 	{
-		$object->next_prev_filter="te.client in (1,2,3)";
-		print $form->showrefnav($object,'socid','',($user->societe_id?0:1),'rowid','nom','','');
+		$ret.='</td><td class="nobordernopadding" align="center" width="20">'.$previous_ref.'</td>';
+		$ret.='<td class="nobordernopadding" align="center" width="20">'.$next_ref;
 	}
+	if ($previous_ref || $next_ref)
+	{
+		$ret.='</td></tr></table>';
+	}
+	
+	print $ret;
 	
 	
 	print '</td></tr>';
@@ -357,16 +365,34 @@ if ($id > 0)
 	print '<tr><td width="30%">'.$langs->trans('ProspectCustomer').'</td><td width="70%" colspan="3">';
 	print $object->getLibCustProspStatut();
 	print '</td></tr>';
-
+	
 	// Address
-	print '<tr><td valign="top">'.$langs->trans('Address').'</td><td colspan="3">';
-	dol_print_address($object->address,'gmap','thirdparty',$object->id);
+	print '<tr><td class="nowrap">';
+	print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
+	print $langs->trans('Address');
+	print '</td>';
+	if ($action != 'editaddress') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editaddress&amp;id='.$object->id.'">'.img_edit($langs->trans('Modify'),1).'</a></td>';
+	print '</tr></table>';
+	print '</td><td colspan="3">';
+	if ($action == 'editaddress')
+		print '<input type="text" name="address" id="address" value="'.$object->address.'"><input type="submit" class="button" name="modify" value="'.$langs->trans("Modify").'">';
+	else
+		dol_print_address($object->address,'gmap','thirdparty',$object->id);
 	print "</td></tr>";
 
 	// Zip / Town
-	print '<tr><td class="nowrap">'.$langs->trans('Zip').' / '.$langs->trans('Town').'</td>';
-	print '<td colspan="3">'.$object->zip.(($object->zip && $object->town)?' / ':'').$object->town."</td>";
-	print '</tr>';
+	print '<tr><td class="nowrap">';
+	print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
+	print $langs->trans('Zip').' / '.$langs->trans('Town');
+	print '</td>';
+	if ($action != 'editville') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editville&amp;id='.$object->id.'">'.img_edit($langs->trans('Modify'),1).'</a></td>';
+	print '</tr></table>';
+	print '</td><td colspan="3">';
+	if ($action == 'editville')
+		print '<input type="text" name="zip" id="zip" value="'.$object->zip.'"> / <input type="text" name="town" id="town" value="'.$object->town.'"><input type="submit" class="button" name="modify" value="'.$langs->trans("Modify").'">';
+	else
+		print $object->zip.(($object->zip && $object->town)?' / ':'').$object->town;
+	print '</td></tr>';
 
 	// Country
 	print '<tr><td>'.$langs->trans("Country").'</td><td colspan="3">';
@@ -379,47 +405,64 @@ if ($id > 0)
 	}
 	print '</td></tr>';
 	
-	// Level of prospect
-	if ($object->client == 2 || $object->client == 3)
-	{
-		// Status
-		print '<tr><td>'.$langs->trans("StatusProsp").'</td><td colspan="2">'.$object->getLibProspCommStatut(4).'</td>';
-		print '<td>';
-		if ($object->stcomm_id != -1) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=-1&amp;action=cstc">'.img_action(0,-1).'</a>';
-		if ($object->stcomm_id !=  0) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=0&amp;action=cstc">'.img_action(0,0).'</a>';
-		if ($object->stcomm_id !=  1) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=1&amp;action=cstc">'.img_action(0,1).'</a>';
-		if ($object->stcomm_id !=  2) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=2&amp;action=cstc">'.img_action(0,2).'</a>';
-		if ($object->stcomm_id !=  3) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=3&amp;action=cstc">'.img_action(0,3).'</a>';
-		print '</td></tr>';
-	
-		// setprospectlevel
-		print '<tr><td class="nowrap">';
-		print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
-		print $langs->trans('ProspectLevel');
-		print '<td>';
-		if ($action != 'editlevel') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editlevel&amp;socid='.$object->id.'">'.img_edit($langs->trans('Modify'),1).'</a></td>';
-		print '</tr></table>';
-		print '</td><td colspan="3">';
-		if ($action == 'editlevel')
-			$formcompany->form_prospect_level($_SERVER['PHP_SELF'].'?socid='.$object->id,$object->fk_prospectlevel,'prospect_level_id',1);
-		else
-			print $object->getLibProspLevel();
-		print "</td>";
-		print '</tr>';
-	}
+	// Status
+	print '<tr><td>'.$langs->trans("StatusProsp").'</td><td colspan="2">'.$object->getLibProspCommStatut(4).'</td>';
+	print '<td>';
+	if ($object->stcomm_id != -1) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=-1&amp;action=cstc">'.img_action(0,-1).'</a>';
+	if ($object->stcomm_id !=  0) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=0&amp;action=cstc">'.img_action(0,0).'</a>';
+	if ($object->stcomm_id !=  1) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=1&amp;action=cstc">'.img_action(0,1).'</a>';
+	if ($object->stcomm_id !=  2) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=2&amp;action=cstc">'.img_action(0,2).'</a>';
+	if ($object->stcomm_id !=  3) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=3&amp;action=cstc">'.img_action(0,3).'</a>';
+	print '</td></tr>';
+
+	// setprospectlevel
+	print '<tr><td class="nowrap">';
+	print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
+	print $langs->trans('ProspectLevel');
+	print '<td>';
+	if ($action != 'editlevel') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editlevel&amp;socid='.$object->id.'">'.img_edit($langs->trans('Modify'),1).'</a></td>';
+	print '</tr></table>';
+	print '</td><td colspan="3">';
+	if ($action == 'editlevel')
+		$formcompany->form_prospect_level($_SERVER['PHP_SELF'].'?socid='.$object->id,$object->fk_prospectlevel,'prospect_level_id',1);
+	else
+		print $object->getLibProspLevel();
+	print '</td>';
+	print '</tr>';
 	
 	// EMail
-	print '<td>'.$langs->trans('EMail').'</td><td colspan="3">'.dol_print_email($object->email,0,$object->id,'AC_EMAIL').'</td></tr>';
+	print '<tr><td class="nowrap">';
+	print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
+	print $langs->trans('EMail');
+	print '</td>';
+	if ($action != 'editemail') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editemail&amp;id='.$object->id.'">'.img_edit($langs->trans('Modify'),1).'</a></td>';
+	print '</tr></table>';
+	print '</td><td colspan="3">';
+	if ($action == 'editemail')
+		print '<input type="text" name="email" id="email" size="32" value="'.$object->email.'"><input type="submit" class="button" name="modify" value="'.$langs->trans("Modify").'">';
+	else
+		print dol_print_email($object->email,0,$object->id,'AC_EMAIL');
+	print '</td></tr>';
 
 	// Web
-	print '<tr><td>'.$langs->trans("Web").'</td><td colspan="3">'.dol_print_url($object->url,'_blank').'</td></tr>';
+	print '<tr><td class="nowrap">';
+	print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
+	print $langs->trans("Web");
+	print '</td>';
+	if ($action != 'editurl') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editurl&amp;id='.$object->id.'">'.img_edit($langs->trans('Modify'),1).'</a></td>';
+	print '</tr></table>';
+	print '</td><td colspan="3">';
+	if ($action == 'editurl')
+		print '<input type="text" name="url" id="url" size="32" value="'.$object->url.'"><input type="submit" class="button" name="modify" value="'.$langs->trans("Modify").'">';
+	else
+		print dol_print_url($object->url,'_blank');
+	print '</td></tr>';
 
+	// Fin du Formulaire de modification du prospect
+	print '</form>';
+	
 	// Phone
-	print '<tr><td>'.$langs->trans('Phone').'</td><td style="min-width: 25%;">'.dol_print_phone($object->phone,$object->country_code,0,$object->id,'AC_TEL').'</td>';
-
-	// Fax
-	print '<td>'.$langs->trans('Fax').'</td><td style="min-width: 25%;">'.dol_print_phone($object->fax,$object->country_code,0,$object->id,'AC_FAX').'</td></tr>';
-
+	print '<tr><td class="nowrap">'.$langs->trans('Phone').'</td><td colspan="3">'.dol_print_phone($object->phone,$object->country_code,0,$object->id,'AC_TEL').'</td></tr>';
 	
 	if (!empty($extrafields->attribute_label))
 	{
@@ -433,6 +476,11 @@ if ($id > 0)
 		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Principaux dirigeants</td></tr></table></td><td colspan="3">';
 		print $object->array_options ['options_prd'];
 		print '</td></tr>';
+		
+		// Formulaire de l'appel
+		print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'">';
+		print '<input type="hidden" name="action" value="appel">';
+		print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 		
 		// Nom du responsable contacté
 		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Nom du responsable contacté</td></tr></table></td><td colspan="3">';
@@ -572,14 +620,6 @@ if ($id > 0)
 		print $extrafields->showInputField(cdc,$value).'</td></tr></table>';
 		print '</td></tr>';
 		
-		// Rendez vous pris le
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Rendez vous pris le</td></tr></table></td><td colspan="3">';
-		$value = isset($_POST["options_rvp"])?dol_mktime($_POST["options_rvphour"], $_POST["options_rvpmin"], 0, $_POST["options_rvpmonth"], $_POST["options_rvpday"], $_POST["options_rvpyear"]):$object->db->jdate($object->array_options['options_rvp']);
-		print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
-		print '<tr><td>';
-		print $extrafields->showInputField(rvp,$value).'</td></tr></table>';
-		print '</td></tr>';
-		
 		// Rendez-vous confirmé
 		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Rendez-vous confirmé</td></tr></table></td><td colspan="3">';
 		$value=(isset($_POST["options_rvc"])?$_POST["options_rvc"]:$object->array_options["options_rvc"]);
@@ -700,136 +740,6 @@ if ($id > 0)
 		}
 	}
 
-	/*
-	 * Last orders
-	 */
-	if (! empty($conf->commande->enabled) && $user->rights->commande->lire)
-	{
-		$commande_static=new Commande($db);
-
-		$sql = "SELECT s.nom, s.rowid,";
-		$sql.= " c.rowid as cid, c.total_ht, c.ref, c.fk_statut, c.facture,";
-		$sql.= " c.date_commande as dc";
-		$sql.= " FROM ".MAIN_DB_PREFIX."societe as s, ".MAIN_DB_PREFIX."commande as c";
-		$sql.= " WHERE c.fk_soc = s.rowid ";
-		$sql.= " AND s.rowid = ".$object->id;
-		$sql.= " AND c.entity = ".$conf->entity;
-		$sql.= " ORDER BY c.date_commande DESC";
-
-		$resql=$db->query($sql);
-		if ($resql)
-		{
-			$var=true;
-			$num = $db->num_rows($resql);
-
-			if ($num > 0)
-			{
-				// Check if there are orders billable
-				$sql2 = 'SELECT s.nom, s.rowid as socid, s.client, c.rowid, c.ref, c.total_ht, c.ref_client,';
-				$sql2.= ' c.date_valid, c.date_commande, c.date_livraison, c.fk_statut, c.facture as facturee';
-				$sql2.= ' FROM '.MAIN_DB_PREFIX.'societe as s';
-				$sql2.= ', '.MAIN_DB_PREFIX.'commande as c';
-				$sql2.= ' WHERE c.fk_soc = s.rowid';
-				$sql2.= ' AND s.rowid = '.$object->id;
-				// Show orders with status validated, shipping started and delivered (well any order we can bill)
-				$sql2.= " AND ((c.fk_statut IN (1,2)) OR (c.fk_statut = 3 AND c.facture = 0))";
-
-				$resql2=$db->query($sql2);
-				$orders2invoice = $db->num_rows($resql2);
-				$db->free($resql2);
-
-				print '<table class="noborder" width="100%">';
-
-				print '<tr class="liste_titre">';
-				print '<td colspan="4"><table width="100%" class="nobordernopadding"><tr><td>'.$langs->trans("LastOrders",($num<=$MAXLIST?"":$MAXLIST)).'</td><td align="right"><a href="'.DOL_URL_ROOT.'/commande/list.php?socid='.$object->id.'">'.$langs->trans("AllOrders").' ('.$num.')</a></td>';
-				print '<td width="20px" align="right"><a href="'.DOL_URL_ROOT.'/commande/stats/index.php?socid='.$object->id.'">'.img_picto($langs->trans("Statistics"),'stats').'</a></td>';
-				//if($num2 > 0) print '<td width="20px" align="right"><a href="'.DOL_URL_ROOT.'/commande/orderstoinvoice.php?socid='.$object->id.'">'.img_picto($langs->trans("CreateInvoiceForThisCustomer"),'object_bill').'</a></td>';
-				//else print '<td width="20px" align="right"><a href="#">'.img_picto($langs->trans("NoOrdersToInvoice"),'object_bill').'</a></td>';
-				print '</tr></table></td>';
-				print '</tr>';
-			}
-
-			$i = 0;
-			while ($i < $num && $i < $MAXLIST)
-			{
-				$objp = $db->fetch_object($resql);
-				$var=!$var;
-				print "<tr ".$bc[$var].">";
-				print '<td class="nowrap"><a href="'.DOL_URL_ROOT.'/commande/card.php?id='.$objp->cid.'">'.img_object($langs->trans("ShowOrder"),"order").' '.$objp->ref."</a>\n";
-				print '</td><td align="right" width="80">'.dol_print_date($db->jdate($objp->dc),'day')."</td>\n";
-				print '<td align="right" style="min-width: 60px">'.price($objp->total_ht).'</td>';
-				print '<td align="right" style="min-width: 60px" class="nowrap">'.$commande_static->LibStatut($objp->fk_statut,$objp->facture,5).'</td></tr>';
-				$i++;
-			}
-			$db->free($resql);
-
-			if ($num >0) print "</table>";
-		}
-		else
-		{
-			dol_print_error($db);
-		}
-	}
-
-	/*
-	 * Last linked contracts
-	 */
-	if (! empty($conf->contrat->enabled) && $user->rights->contrat->lire)
-	{
-		$contratstatic=new Contrat($db);
-
-		$sql = "SELECT s.nom, s.rowid, c.rowid as id, c.ref as ref, c.statut, c.datec as dc";
-		$sql.= " FROM ".MAIN_DB_PREFIX."societe as s, ".MAIN_DB_PREFIX."contrat as c";
-		$sql.= " WHERE c.fk_soc = s.rowid ";
-		$sql.= " AND s.rowid = ".$object->id;
-		$sql.= " AND c.entity = ".$conf->entity;
-		$sql.= " ORDER BY c.datec DESC";
-
-		$resql=$db->query($sql);
-		if ($resql)
-		{
-			$var=true;
-			$num = $db->num_rows($resql);
-			if ($num >0 )
-			{
-		        print '<table class="noborder" width="100%">';
-
-			    print '<tr class="liste_titre">';
-				print '<td colspan="4"><table width="100%" class="nobordernopadding"><tr><td>'.$langs->trans("LastContracts",($num<=$MAXLIST?"":$MAXLIST)).'</td>';
-				print '<td align="right"><a href="'.DOL_URL_ROOT.'/contrat/list.php?socid='.$object->id.'">'.$langs->trans("AllContracts").' ('.$num.')</a></td></tr></table></td>';
-				print '</tr>';
-			}
-			$i = 0;
-			while ($i < $num && $i < $MAXLIST)
-			{
-				$contrat=new Contrat($db);
-
-				$objp = $db->fetch_object($resql);
-				$var=!$var;
-				print "<tr ".$bc[$var].">";
-				print '<td class="nowrap">';
-				$contrat->id=$objp->id;
-				$contrat->ref=$objp->ref?$objp->ref:$objp->id;
-				print $contrat->getNomUrl(1,12);
-				print "</td>\n";
-				print '<td align="right" width="80">'.dol_print_date($db->jdate($objp->dc),'day')."</td>\n";
-				print '<td width="20">&nbsp;</td>';
-				print '<td align="right" class="nowrap">';
-				$contrat->fetch_lines();
-				print $contrat->getLibStatut(4);
-				print "</td>\n";
-				print '</tr>';
-				$i++;
-			}
-			$db->free($resql);
-
-			if ($num > 0) print "</table>";
-		}
-		else
-		{
-			dol_print_error($db);
-		}
-	}
 
 	/*
 	 * Last interventions
@@ -886,78 +796,6 @@ if ($id > 0)
 		}
 	}
 
-	/*
-	 *   Last invoices
-	 */
-	if (! empty($conf->facture->enabled) && $user->rights->facture->lire)
-	{
-		$facturestatic = new Facture($db);
-
-		$sql = 'SELECT f.rowid as facid, f.facnumber, f.type, f.amount, f.total, f.total_ttc,';
-		$sql.= ' f.datef as df, f.datec as dc, f.paye as paye, f.fk_statut as statut,';
-		$sql.= ' s.nom, s.rowid as socid,';
-		$sql.= ' SUM(pf.amount) as am';
-		$sql.= " FROM ".MAIN_DB_PREFIX."societe as s,".MAIN_DB_PREFIX."facture as f";
-		$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'paiement_facture as pf ON f.rowid=pf.fk_facture';
-		$sql.= " WHERE f.fk_soc = s.rowid AND s.rowid = ".$object->id;
-		$sql.= " AND f.entity = ".$conf->entity;
-		$sql.= ' GROUP BY f.rowid, f.facnumber, f.type, f.amount, f.total, f.total_ttc,';
-		$sql.= ' f.datef, f.datec, f.paye, f.fk_statut,';
-		$sql.= ' s.nom, s.rowid';
-		$sql.= " ORDER BY f.datef DESC, f.datec DESC";
-
-		$resql=$db->query($sql);
-		if ($resql)
-		{
-			$var=true;
-			$num = $db->num_rows($resql);
-			$i = 0;
-			if ($num > 0)
-			{
-		        print '<table class="noborder" width="100%">';
-
-			    $tableaushown=1;
-				print '<tr class="liste_titre">';
-				print '<td colspan="4"><table width="100%" class="nobordernopadding"><tr><td>'.$langs->trans("LastCustomersBills",($num<=$MAXLIST?"":$MAXLIST)).'</td><td align="right"><a href="'.DOL_URL_ROOT.'/compta/facture/list.php?socid='.$object->id.'">'.$langs->trans("AllBills").' ('.$num.')</a></td>';
-                print '<td width="20px" align="right"><a href="'.DOL_URL_ROOT.'/compta/facture/stats/index.php?socid='.$object->id.'">'.img_picto($langs->trans("Statistics"),'stats').'</a></td>';
-				print '</tr></table></td>';
-				print '</tr>';
-			}
-
-			while ($i < $num && $i < $MAXLIST)
-			{
-				$objp = $db->fetch_object($resql);
-				$var=!$var;
-				print "<tr ".$bc[$var].">";
-				print '<td class="nowrap">';
-				$facturestatic->id=$objp->facid;
-				$facturestatic->ref=$objp->facnumber;
-				$facturestatic->type=$objp->type;
-				print $facturestatic->getNomUrl(1);
-				print '</td>';
-				if ($objp->df > 0)
-				{
-					print '<td align="right" width="80">'.dol_print_date($db->jdate($objp->df),'day').'</td>';
-				}
-				else
-				{
-					print '<td align="right"><b>!!!</b></td>';
-				}
-				print '<td align="right" width="120">'.price($objp->total_ttc).'</td>';
-
-				print '<td align="right" class="nowrap" width="100" >'.($facturestatic->LibStatut($objp->paye,$objp->statut,5,$objp->am)).'</td>';
-				print "</tr>\n";
-				$i++;
-			}
-			$db->free($resql);
-
-			if ($num > 0) print "</table>";
-		}
-		else
-		{
-			dol_print_error($db);
-		}
-	}
 
 	print '</div></div></div>';
 	print '<div style="clear:both"></div>';
