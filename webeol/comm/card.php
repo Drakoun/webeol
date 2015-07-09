@@ -140,11 +140,15 @@ if ($action == 'appel')
 	$object->array_options ["options_rsi"] = GETPOST("options_rsi");
 	$object->array_options ["options_rsi"] = GETPOST("options_ersi");
 	$object->array_options ["options_cdc"] = GETPOST("options_cdc");
-	$object->array_options ["options_rvp"] = dol_mktime($_POST["options_rvphour"], $_POST["options_rvpmin"], 0, $_POST["options_rvpmonth"], $_POST["options_rvpday"], $_POST["options_rvpyear"]);
-	$object->array_options ["options_rvc"] = GETPOST("options_rvc");
-	$object->array_options ["options_dtc"] = dol_mktime($_POST["options_dtchour"], $_POST["options_dtcmin"], 0, $_POST["options_dtcmonth"], $_POST["options_dtcday"], $_POST["options_dtcyear"]);
 	$object->array_options ["options_tsp"] = GETPOST("options_tsp");
 	$object->array_options ["options_com"] = GETPOST("options_com");
+	$object->array_options ["options_sc"] = GETPOST("options_sc");
+	$object->array_options ["options_asi"] = GETPOST("options_asi");
+	$object->array_options ["options_oac"] = GETPOST("options_oac");
+	$object->array_options ["options_smart"] = GETPOST("options_smart");
+	$object->array_options ["options_ata"] = GETPOST("options_ata");
+	$object->array_options ["options_apra"] = GETPOST("options_apra");
+	$object->array_options ["options_iform"] = GETPOST("options_iform");
 
 	// Date et heure d'appel, Nombre d'appels en automatique si le dernier appel s'est fait au moins il y a 4 heures
 	if (strtotime($object->array_options['options_dda']) + (4 * 60 * 60) < dol_now())
@@ -174,6 +178,14 @@ if ($action == 'appel')
 	{
 		$object->array_options['options_dda'] = strtotime($object->array_options['options_dda']);
 	}
+	
+	// Modification du status de prospection en automatique
+	if ($object->array_options ["options_rda"] == 'Grands groupes') $object->stcomm_id = -1;
+	if ($object->array_options ["options_rda"] == 'Barrage secrétaire' || $object->array_options ["options_rda"] == 'Entretien téléphonique' ||
+			 $object->array_options ["options_rda"] == 'Envoi de mail de présentation' || $object->array_options ["options_rda"] == 'A renouvelé') 
+		$object->stcomm_id = 1;
+	if ($object->array_options ["options_rda"] == 'Rendez-vous pris') $object->stcomm_id = 2;
+	$object->set_commnucation_level($user);
 }
 
 // Mise à jour dans la base
@@ -346,7 +358,7 @@ if ($id > 0)
 		$ret .= '<input type="text" name="name" id="name" value="'.$object->name.'"><input type="submit" class="button" name="modify" value="'.$langs->trans("Modify").'">';
 	else			$ret.=dol_htmlentities($object->nom);
 	
-	if (($user->societe_id?0:1) && ($previous_ref || $next_ref) && $action != 'editnom')
+	if (($user->societe_id?0:1) && ($previous_ref || $next_ref) && $action != 'editname')
 	{
 		$ret.='</td><td class="nobordernopadding" align="center" width="20">'.$previous_ref.'</td>';
 		$ret.='<td class="nobordernopadding" align="center" width="20">'.$next_ref;
@@ -489,41 +501,44 @@ if ($id > 0)
 		print '<tr><td>';
 		print $extrafields->showInputField(nrc,$value).'</td></tr></table>';
 		print '</td></tr>';
-
-		// Carte simple
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Carte simple</td></tr></table></td><td colspan="3">';
-		print $object->array_options ['options_cas'];
-		print '</td></tr>';
+		
+		if ($object->array_options ['options_tp'] == 1 || $object->array_options ['options_tp'] == 3)
+		{
+			// Carte simple
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Carte simple</td></tr></table></td><td colspan="3">';
+			print $object->array_options ['options_cas'];
+			print '</td></tr>';
+				
+			// Carte premium
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Carte premium</td></tr></table></td><td colspan="3">';
+			print $object->array_options ['options_cap'];
+			print '</td></tr>';
 			
-		// Carte premium
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Carte premium</td></tr></table></td><td colspan="3">';
-		print $object->array_options ['options_cap'];
-		print '</td></tr>';
-		
-		// En savoir +
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">En savoir +</td></tr></table></td><td colspan="3">';
-		print $object->array_options ['options_esp'];
-		print '</td></tr>';
-		
-		// Lien direct
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Lien direct</td></tr></table></td><td colspan="3">';
-		print $object->array_options ['options_ld'];
-		print '</td></tr>';
-		
-		// Nombre d'activités
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Nombre d\'activités</td></tr></table></td><td colspan="3">';
-		print $object->array_options ['options_na'];
-		print '</td></tr>';
-
-		// Budget pages jaunes internet minimum
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Budget pages jaunes internet minimum</td></tr></table></td><td colspan="3">';
-		print $object->array_options ['options_ttmin'];
-		print '</td></tr>';
-		
-		// Budget pages jaunes internet maximum
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Budget pages jaunes internet maximum</td></tr></table></td><td colspan="3">';
-		print $object->array_options ['options_ttmax'];
-		print '</td></tr>';
+			// En savoir +
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">En savoir +</td></tr></table></td><td colspan="3">';
+			print $object->array_options ['options_esp'];
+			print '</td></tr>';
+			
+			// Lien direct
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Lien direct</td></tr></table></td><td colspan="3">';
+			print $object->array_options ['options_ld'];
+			print '</td></tr>';
+			
+			// Nombre d'activités
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Nombre d\'activités</td></tr></table></td><td colspan="3">';
+			print $object->array_options ['options_na'];
+			print '</td></tr>';
+	
+			// Budget pages jaunes internet minimum
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Budget pages jaunes internet minimum</td></tr></table></td><td colspan="3">';
+			print $object->array_options ['options_ttmin'];
+			print '</td></tr>';
+			
+			// Budget pages jaunes internet maximum
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Budget pages jaunes internet maximum</td></tr></table></td><td colspan="3">';
+			print $object->array_options ['options_ttmax'];
+			print '</td></tr>';
+		}
 		
 		// Campagne commercial
 		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Campagne commercial</td></tr></table></td><td colspan="3">';
@@ -556,37 +571,99 @@ if ($id > 0)
 		print $extrafields->showInputField(pr,$value).'</td></tr></table>';
 		print '</td></tr>';
 		
-		// Budget global pages jaunes
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Budget global pages jaunes</td></tr></table></td><td colspan="3">';
-		$value=(isset($_POST["options_bgpj"])?$_POST["options_pr"]:$object->array_options["options_bgpj"]);
-		print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
-		print '<tr><td>';
-		print $extrafields->showInputField(bgpj,$value).'</td></tr></table>';
-		print '</td></tr>';
+		if ($object->array_options ['options_tp'] == 1 || $object->array_options ['options_tp'] == 3)
+		{
+			// Budget global pages jaunes
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Budget global pages jaunes</td></tr></table></td><td colspan="3">';
+			$value=(isset($_POST["options_bgpj"])?$_POST["options_pr"]:$object->array_options["options_bgpj"]);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(bgpj,$value).'</td></tr></table>';
+			print '</td></tr>';
+			
+			// Date de renouvellement pages jaunes
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Date de renouvellement</td></tr></table></td><td colspan="3">';
+			$value = isset($_POST["options_ddr"])?dol_mktime($_POST["options_ddrhour"], $_POST["options_ddrmin"], 0, $_POST["options_ddrmonth"], $_POST["options_ddrday"], $_POST["options_ddryear"]):$object->db->jdate($object->array_options['options_ddr']);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(ddr,$value).'</td></tr></table>';
+			print '</td></tr>';
+			
+			// Situation du renouvellement Pages jaunes
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Renouvellement Pages jaunes</td></tr></table></td><td colspan="3">';
+			$value=(isset($_POST["options_rpj"])?$_POST["options_rpj"]:$object->array_options["options_rpj"]);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(rpj,$value).'</td></tr></table>';
+			print '</td></tr>';
+			
+			// Retombées pages jaunes
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Retombées pages jaunes</td></tr></table></td><td colspan="3">';
+			$value=(isset($_POST["options_rpja"])?$_POST["options_rpja"]:$object->array_options["options_rpja"]);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(rpja,$value).'</td></tr></table>';
+			print '</td></tr>';
+		}
 		
-		// Date de renouvellement pages jaunes
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Date de renouvellement</td></tr></table></td><td colspan="3">';
-		$value = isset($_POST["options_ddr"])?dol_mktime($_POST["options_ddrhour"], $_POST["options_ddrmin"], 0, $_POST["options_ddrmonth"], $_POST["options_ddrday"], $_POST["options_ddryear"]):$object->db->jdate($object->array_options['options_ddr']);
-		print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
-		print '<tr><td>';
-		print $extrafields->showInputField(ddr,$value).'</td></tr></table>';
-		print '</td></tr>';
-		
-		// Situation du renouvellement Pages jaunes
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Renouvellement Pages jaunes</td></tr></table></td><td colspan="3">';
-		$value=(isset($_POST["options_rpj"])?$_POST["options_rpj"]:$object->array_options["options_rpj"]);
-		print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
-		print '<tr><td>';
-		print $extrafields->showInputField(rpj,$value).'</td></tr></table>';
-		print '</td></tr>';
-		
-		// Retombées pages jaunes
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Retombées pages jaunes</td></tr></table></td><td colspan="3">';
-		$value=(isset($_POST["options_rpja"])?$_POST["options_rpja"]:$object->array_options["options_rpja"]);
-		print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
-		print '<tr><td>';
-		print $extrafields->showInputField(rpja,$value).'</td></tr></table>';
-		print '</td></tr>';
+		if ($object->array_options ['options_tp'] == 2 || $object->array_options ['options_tp'] == 3)
+		{
+			// Les supports de communication
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Les supports de communication</td></tr></table></td><td colspan="3">';
+			$value=(isset($_POST["options_sc"])?$_POST["options_sc"]:$object->array_options["options_sc"]);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(sc,$value).'</td></tr></table>';
+			print '</td></tr>';	
+			
+			// A un site internet
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">A un site internet</td></tr></table></td><td colspan="3">';
+			$value=(isset($_POST["options_asi"])?$_POST["options_asi"]:$object->array_options["options_asi"]);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(asi,$value).'</td></tr></table>';
+			print '</td></tr>';
+			
+			// Offre des avantages à ses clients
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Offre des avantages à ses clients</td></tr></table></td><td colspan="3">';
+			$value=(isset($_POST["options_oac"])?$_POST["options_oac"]:$object->array_options["options_oac"]);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(oac,$value).'</td></tr></table>';
+			print '</td></tr>';
+			
+			// A un smartphone
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">A un smartphone</td></tr></table></td><td colspan="3">';
+			$value=(isset($_POST["options_smart"])?$_POST["options_smart"]:$object->array_options["options_smart"]);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(smart,$value).'</td></tr></table>';
+			print '</td></tr>';
+			
+			// A télécharger des applications
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">A télécharger des applications</td></tr></table></td><td colspan="3">';
+			$value=(isset($_POST["options_ata"])?$_POST["options_ata"]:$object->array_options["options_ata"]);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(ata,$value).'</td></tr></table>';
+			print '</td></tr>';
+			
+			// A pensé à réaliser une application
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">A pensé à réaliser une application</td></tr></table></td><td colspan="3">';
+			$value=(isset($_POST["options_apra"])?$_POST["options_apra"]:$object->array_options["options_apra"]);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(apra,$value).'</td></tr></table>';
+			print '</td></tr>';
+			
+			// Intéressé par une formation
+			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Intéressé par une formation</td></tr></table></td><td colspan="3">';
+			$value=(isset($_POST["options_iform"])?$_POST["options_iform"]:$object->array_options["options_iform"]);
+			print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
+			print '<tr><td>';
+			print $extrafields->showInputField(iform,$value).'</td></tr></table>';
+			print '</td></tr>';
+		}
 		
 		// Budget site internet
 		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Budget site internet</td></tr></table></td><td colspan="3">';
@@ -620,22 +697,6 @@ if ($id > 0)
 		print $extrafields->showInputField(cdc,$value).'</td></tr></table>';
 		print '</td></tr>';
 		
-		// Rendez-vous confirmé
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Rendez-vous confirmé</td></tr></table></td><td colspan="3">';
-		$value=(isset($_POST["options_rvc"])?$_POST["options_rvc"]:$object->array_options["options_rvc"]);
-		print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
-		print '<tr><td>';
-		print $extrafields->showInputField(rvc,$value).'</td></tr></table>';
-		print '</td></tr>';
-		
-		// Date de confirmation
-		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Date de confirmation</td></tr></table></td><td colspan="3">';
-		$value = isset($_POST["options_dtc"])?dol_mktime($_POST["options_dtchour"], $_POST["options_dtcmin"], 0, $_POST["options_dtcmonth"], $_POST["options_dtcday"], $_POST["options_dtcyear"]):$object->db->jdate($object->array_options['options_dtc']);
-		print '<table class="nobordernopadding" cellpadding="0" cellspacing="0">';
-		print '<tr><td>';
-		print $extrafields->showInputField(dtc,$value).'</td></tr></table>';
-		print '</td></tr>';
-		
 		// Type SONCAS de prospect
 		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Type SONCAS de prospect</td></tr></table></td><td colspan="3">';
 		$value=(isset($_POST["options_tsp"])?$_POST["options_tsp"]:$object->array_options["options_tsp"]);
@@ -665,138 +726,18 @@ if ($id > 0)
 	
 	
 	print '</div><div class="fichehalfright"><div class="ficheaddleft">';
-
-
-	// Nbre max d'elements des petites listes
-	$MAXLIST=4;
-	$tableaushown=1;
-
-	// Lien recap
-	print '<table class="noborder" width="100%">';
-	print '<tr class="liste_titre">';
-	print '<td colspan="4"><table width="100%" class="nobordernopadding"><tr><td>'.$langs->trans("Summary").'</td>';
-	print '<td align="right"><a href="'.DOL_URL_ROOT.'/compta/recap-compta.php?socid='.$object->id.'">'.$langs->trans("ShowCustomerPreview").'</a></td></tr></table></td>';
-	print '</tr>';
-	print '</table>';
-	print '<br>';
-
-	$now=dol_now();
-
-	/*
-	 * Last proposals
-	 */
-	if (! empty($conf->propal->enabled) && $user->rights->propal->lire)
+	
+	if (! empty($conf->global->MAIN_REPEATTASKONEACHTAB))
 	{
-		$propal_static = new Propal($db);
-
-		$sql = "SELECT s.nom, s.rowid, p.rowid as propalid, p.fk_statut, p.total_ht, p.ref, p.remise, ";
-		$sql.= " p.datep as dp, p.fin_validite as datelimite";
-		$sql.= " FROM ".MAIN_DB_PREFIX."societe as s, ".MAIN_DB_PREFIX."propal as p, ".MAIN_DB_PREFIX."c_propalst as c";
-		$sql.= " WHERE p.fk_soc = s.rowid AND p.fk_statut = c.id";
-		$sql.= " AND s.rowid = ".$object->id;
-		$sql.= " AND p.entity = ".$conf->entity;
-		$sql.= " ORDER BY p.datep DESC";
-
-		$resql=$db->query($sql);
-		if ($resql)
-		{
-			$var=true;
-			$num = $db->num_rows($resql);
-
-            if ($num > 0)
-            {
-		        print '<table class="noborder" width="100%">';
-
-                print '<tr class="liste_titre">';
-    			print '<td colspan="4"><table width="100%" class="nobordernopadding"><tr><td>'.$langs->trans("LastPropals",($num<=$MAXLIST?"":$MAXLIST)).'</td><td align="right"><a href="'.DOL_URL_ROOT.'/comm/propal/list.php?socid='.$object->id.'">'.$langs->trans("AllPropals").' ('.$num.')</a></td>';
-                print '<td width="20px" align="right"><a href="'.DOL_URL_ROOT.'/comm/propal/stats/index.php?socid='.$object->id.'">'.img_picto($langs->trans("Statistics"),'stats').'</a></td>';
-    			print '</tr></table></td>';
-    			print '</tr>';
-            }
-
-			$i = 0;
-			while ($i < $num && $i < $MAXLIST)
-			{
-				$objp = $db->fetch_object($resql);
-				$var=!$var;
-				print "<tr ".$bc[$var].">";
-				print '<td class="nowrap"><a href="propal.php?id='.$objp->propalid.'">'.img_object($langs->trans("ShowPropal"),"propal").' '.$objp->ref.'</a>'."\n";
-				if ( ($db->jdate($objp->dp) < ($now - $conf->propal->cloture->warning_delay)) && $objp->fk_statut == 1 )
-				{
-					print " ".img_warning();
-				}
-				print '</td><td align="right" width="80">'.dol_print_date($db->jdate($objp->dp),'day')."</td>\n";
-				print '<td align="right" style="min-width: 60px">'.price($objp->total_ht).'</td>';
-				print '<td align="right" style="min-width: 60px" class="nowrap">'.$propal_static->LibStatut($objp->fk_statut,5).'</td></tr>';
-				$i++;
-			}
-			$db->free($resql);
-
-			if ($num > 0) print "</table>";
-		}
-		else
-		{
-			dol_print_error($db);
-		}
+		print load_fiche_titre($langs->trans("ActionsOnCompany"),'','');
+	
+		// List of todo actions
+		show_actions_todo($conf,$langs,$db,$object);
+	
+		// List of done actions
+		show_actions_done($conf,$langs,$db,$object);
 	}
-
-
-	/*
-	 * Last interventions
-	 */
-	if (! empty($conf->ficheinter->enabled) && $user->rights->ficheinter->lire)
-	{
-		$sql = "SELECT s.nom, s.rowid, f.rowid as id, f.ref, f.fk_statut, f.duree as duration, f.datei as startdate";
-		$sql.= " FROM ".MAIN_DB_PREFIX."societe as s, ".MAIN_DB_PREFIX."fichinter as f";
-		$sql.= " WHERE f.fk_soc = s.rowid";
-		$sql.= " AND s.rowid = ".$object->id;
-		$sql.= " AND f.entity = ".$conf->entity;
-		$sql.= " ORDER BY f.tms DESC";
-
-		$fichinter_static=new Fichinter($db);
-
-		$resql=$db->query($sql);
-		if ($resql)
-		{
-			$var=true;
-			$num = $db->num_rows($resql);
-			if ($num > 0)
-			{
-		        print '<table class="noborder" width="100%">';
-
-			    print '<tr class="liste_titre">';
-				print '<td colspan="4"><table width="100%" class="nobordernopadding"><tr><td>'.$langs->trans("LastInterventions",($num<=$MAXLIST?"":$MAXLIST)).'</td><td align="right"><a href="'.DOL_URL_ROOT.'/fichinter/list.php?socid='.$object->id.'">'.$langs->trans("AllInterventions").' ('.$num.')</td></tr></table></td>';
-				print '</tr>';
-				$var=!$var;
-			}
-			$i = 0;
-			while ($i < $num && $i < $MAXLIST)
-			{
-				$objp = $db->fetch_object($resql);
-
-				$fichinter_static->id=$objp->id;
-                $fichinter_static->statut=$objp->fk_statut;
-
-				print "<tr ".$bc[$var].">";
-				print '<td class="nowrap"><a href="'.DOL_URL_ROOT.'/fichinter/card.php?id='.$objp->id.'">'.img_object($langs->trans("ShowPropal"),"propal").' '.$objp->ref.'</a></td>'."\n";
-                //print '<td align="right" width="80">'.dol_print_date($db->jdate($objp->startdate)).'</td>'."\n";
-				print '<td align="right" width="120">'.convertSecondToTime($objp->duration).'</td>'."\n";
-				print '<td align="right" width="100">'.$fichinter_static->getLibStatut(5).'</td>'."\n";
-				print '</tr>';
-				$var=!$var;
-				$i++;
-			}
-			$db->free($resql);
-
-			if ($num > 0) print "</table>";
-		}
-		else
-		{
-			dol_print_error($db);
-		}
-	}
-
-
+	
 	print '</div></div></div>';
 	print '<div style="clear:both"></div>';
 
@@ -883,14 +824,24 @@ if ($id > 0)
 		print 'Rubrique : '.$object->array_options ['options_ru'].'<br>';
 		print 'Nom du responsable contacté : '.$object->array_options["options_nrc"].'<br>';
 		print 'Campagne commercial : '.$object->array_options ['options_cc'].'<br>';
+		if ($object->array_options ['options_tp'] == 1 || $object->array_options ['options_tp'] == 3)
+		{
 		print 'Budget global pages jaunes : '.$object->array_options ['options_bgpj'].'<br>';
 		print 'Retombées pages jaunes : '.$object->array_options ['options_rpja'].'<br>';
+		}
+		if ($object->array_options ['options_tp'] == 2 || $object->array_options ['options_tp'] == 3)
+		{
+			print 'Les supports de communication : '.$object->array_options ['options_sc'].'<br>';
+			print 'A un site internet : '.$object->array_options ['options_asi'].'<br>';
+			print 'Offre des avantages à ses clients : '.$object->array_options ['options_oac'].'<br>';
+			print 'A un smartphone : '.$object->array_options ['options_smart'].'<br>';
+			print 'A télécharger des applications : '.$object->array_options ['options_ata'].'<br>';
+			print 'A pensé à réaliser une application : '.$object->array_options ['options_apra'].'<br>';
+			print 'Intéressé par une formation : '.$object->array_options ['options_iform'].'<br>';
+		}
 		print 'Budget site internet : '.$object->array_options ['options_bsi'].'<br>';
 		print 'Retombées sites internet : '.$object->array_options ['options_rsi'].'<br>';
 		print 'Engagement restant sur site internet : '.$object->array_options ['options_ersi'].'<br>';
-		print 'Rendez vous pris le : '.$object->array_options ['options_rvp'].'<br>';
-		print 'Rendez-vous confirmé : '.$object->array_options ['options_rvc'].'<br>';
-		print 'Date de confirmation : '.$object->array_options ['options_dtc'].'<br>';
 		print 'Type SONCAS de prospect : '.$object->array_options ['options_tsp'].'<br>';
 		print 'Commentaire : '.$object->array_options ['options_com'].'<br>';
 		print '</div><br>';
@@ -900,17 +851,6 @@ if ($id > 0)
 	{
 		// List of contacts
 		show_contacts($conf,$langs,$db,$object,$_SERVER["PHP_SELF"].'?socid='.$object->id);
-	}
-
-    if (! empty($conf->global->MAIN_REPEATTASKONEACHTAB))
-    {
-        print load_fiche_titre($langs->trans("ActionsOnCompany"),'','');
-
-        // List of todo actions
-		show_actions_todo($conf,$langs,$db,$object);
-
-        // List of done actions
-		show_actions_done($conf,$langs,$db,$object);
 	}
 	
 	if ($action == 'presend')
