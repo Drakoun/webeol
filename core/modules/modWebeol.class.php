@@ -558,6 +558,20 @@ class modWebeol extends DolibarrModules
 				'user' => 0
 		);
 		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => '0',
+				'type' => 'top',
+				'titre' => 'Gmail',
+				'url' => 'https://mail.google.com/',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '1',
+				'target' => '_blank',
+				'user' => 0
+		);
+		$r++;
 
 		// Exports
 		$r = 0;
