@@ -86,7 +86,7 @@ class box_acontacter extends ModeleBoxes
 		$sql .= " WHERE se.telepro = ".$user->id." AND s.client = 2 AND se.tp != 1 AND s.fk_stcomm = 1 ORDER BY se.pr ASC";
 		
 		dol_syslog("WebeolBox::prospect_acontacter sql=" . $sql, LOG_DEBUG);
-		$resql = $this->db->query($sql);
+		$resql = $db->query($sql);
 		
 		$text = $langs->trans("ListProspectAContacter");
 		$text .= " (" . $langs->trans("LastN", $max) . ")";
