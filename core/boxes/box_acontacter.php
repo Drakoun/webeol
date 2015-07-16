@@ -99,24 +99,24 @@ class box_acontacter extends ModeleBoxes
 		
 		if ($resql)
 		{
-			while ($i < $max && $obj = $this->db->fetch_object($resql))
-			{
+			while ($i < $max && $obj = $db->fetch_object($resql))
+			{var_dump($obj);
 				$this->info_box_contents[$i][0] = array('td' => 'align="left" width="16"',
 						'logo' => 'object_company',
 						'url' => dol_buildpath("/webeol/webeol/comm/card.php",1) . '?id=' . $obj->s.rowid
 				);
 				$this->info_box_contents[$i][1] = array('td' => 'align="left"',
-						'text' => $obj->s.nom,
+						'text' => $obj->nom,
 						'url' => dol_buildpath("/webeol/webeol/comm/card.php",1) . '?id=' . $obj->s.rowid
 				);
 				$this->info_box_contents[$i][2] = array('td' => 'align="left"',
-						'text' => $obj->s.dda,
+						'text' => dol_print_date($obj->dda,'dayhourtextshort'),
 				);
 				$this->info_box_contents[$i][3] = array('td' => 'align="left"',
-						'text' => $obj->s.rda,
+						'text' => $obj->rda,
 				);
-				$this->info_box_contents[$i][3] = array('td' => 'align="left"',
-						'text' => $obj->s.pr,
+				$this->info_box_contents[$i][4] = array('td' => 'align="left"',
+						'text' => dol_print_date($obj->pr,'dayhourtextshort'),
 				);
 				$i++;
 			}
