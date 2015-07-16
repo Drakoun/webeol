@@ -263,9 +263,14 @@ class modWebeol extends DolibarrModules
 				'enabledbydefaulton' => 'Home'
 			)
 		);*/
+		$r = 0;
 		$this->boxes[$r][1] = "box_webeolgooglemaps@webeol";
 		$r ++;
-
+		//$this->boxes[$r][1] = "box_webeolappeler@webeol";
+		//$r ++;
+		$this->boxes[$r][1] = "box_acontacter@webeol";
+		$r ++;
+		
 		// Permissions
 		$this->rights = array(); // Permission array used by this module
 		$r = 0;
@@ -401,6 +406,34 @@ class modWebeol extends DolibarrModules
 			'user' => 0
 		);
 		$r++;
+
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=home,fk_leftmenu=ProspectPJ',
+				'type' => 'left',
+				'titre' => 'Appeler à nouveau',
+				'url' => '/mylist/mylist.php?code=PPJAppeler',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->rights->webeol->telepro',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=home,fk_leftmenu=ProspectPJ',
+				'type' => 'left',
+				'titre' => 'A contacter',
+				'url' => '/mylist/mylist.php?code=PPJAContacter',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->rights->webeol->telepro',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
 		
 		$this->menu[$r]=array(
 				'fk_menu' => 'fk_mainmenu=home',
@@ -408,6 +441,34 @@ class modWebeol extends DolibarrModules
 				'titre' => 'Prospects appli mobile',
 				'leftmenu' => 'ProspectAM',
 				'url' => '/mylist/mylist.php?code=ProspectsAppliMobile',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->rights->webeol->telepro',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=home,fk_leftmenu=ProspectAM',
+				'type' => 'left',
+				'titre' => 'Appeler à nouveau',
+				'url' => '/mylist/mylist.php?code=PAMAppeler',
+				'langs' => 'webeol@webeol',
+				'position' => 100+$r,
+				'enabled' => '1',
+				'perms' => '$user->rights->webeol->telepro',
+				'target' => '',
+				'user' => 0
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+				'fk_menu' => 'fk_mainmenu=home,fk_leftmenu=ProspectAM',
+				'type' => 'left',
+				'titre' => 'A contacter',
+				'url' => '/mylist/mylist.php?code=PAMAContacter',
 				'langs' => 'webeol@webeol',
 				'position' => 100+$r,
 				'enabled' => '1',
