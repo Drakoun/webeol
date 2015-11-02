@@ -117,6 +117,7 @@ if ($action == 'update')
 	if (GETPOST('town')) $object->town = GETPOST('town');
 	if (GETPOST('email', 'custom', 0, FILTER_SANITIZE_EMAIL) != null) $object->email = GETPOST('email', 'custom', 0, FILTER_SANITIZE_EMAIL);
 	if (GETPOST('url', 'custom', 0, FILTER_SANITIZE_EMAIL) != null) $object->url = GETPOST('url', 'custom', 0, FILTER_SANITIZE_URL);
+	if (GETPOST('phone')) $object->phone = GETPOST('phone');
 }
 
 // Update third party à partir du formulaire de l'appel
@@ -426,7 +427,13 @@ if ($id > 0)
 	if ($object->stcomm_id !=  2) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=2&amp;action=cstc">'.img_action(0,2).'</a>';
 	if ($object->stcomm_id !=  3) print '<a href="card.php?socid='.$object->id.'&amp;stcomm=3&amp;action=cstc">'.img_action(0,3).'</a>';
 	print '</td></tr>';
+	
 
+	// Telepro
+	print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Téléprospecteur</td></tr></table></td><td colspan="3">';
+	print $extrafields->showOutputField(telepro,$object->array_options ['options_telepro']);
+	print '</td></tr>';
+	
 	// setprospectlevel
 	print '<tr><td class="nowrap">';
 	print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
@@ -470,11 +477,21 @@ if ($id > 0)
 		print dol_print_url($object->url,'_blank');
 	print '</td></tr>';
 
+	// Phone
+	print '<tr><td class="nowrap">';
+	print '<table width="100%" class="nobordernopadding"><tr><td class="nowrap">';
+	print $langs->trans('Phone').'</td>';
+	if ($action != 'editphone') print '<td align="right"><a href="'.$_SERVER["PHP_SELF"].'?action=editphone&amp;id='.$object->id.'">'.img_edit($langs->trans('Modify'),1).'</a></td>';
+	print '</tr></table>';
+	print '<td colspan="3">';
+	if ($action == 'editphone')
+		print '<input type="text" name="phone" id="phone" value="'.$object->phone.'"><input type="submit" class="button" name="modify" value="'.$langs->trans("Modify").'">';
+	else
+		print dol_print_phone($object->phone,$object->country_code,0,$object->id,'AC_TEL');
+	print '</td></tr>';
+	
 	// Fin du Formulaire de modification du prospect
 	print '</form>';
-	
-	// Phone
-	print '<tr><td class="nowrap">'.$langs->trans('Phone').'</td><td colspan="3">'.dol_print_phone($object->phone,$object->country_code,0,$object->id,'AC_TEL').'</td></tr>';
 	
 	if (!empty($extrafields->attribute_label))
 	{
@@ -528,16 +545,6 @@ if ($id > 0)
 			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Nombre d\'activités</td></tr></table></td><td colspan="3">';
 			print $object->array_options ['options_na'];
 			print '</td></tr>';
-	
-			// Budget pages jaunes internet minimum
-			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Budget pages jaunes internet minimum</td></tr></table></td><td colspan="3">';
-			print $object->array_options ['options_ttmin'];
-			print '</td></tr>';
-			
-			// Budget pages jaunes internet maximum
-			print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Budget pages jaunes internet maximum</td></tr></table></td><td colspan="3">';
-			print $object->array_options ['options_ttmax'];
-			print '</td></tr>';
 		}
 		
 		// Campagne commercial
@@ -547,7 +554,7 @@ if ($id > 0)
 		
 		// Date et heure d'appel
 		print '<tr><td class="nowrap"><table width="100%" class="nobordernopadding"><tr><td class="nowrap">Date et heure d\'appel</td></tr></table></td><td colspan="3">';
-		print dol_print_date($object->array_options["options_dda"],'dayhourtextshort');
+		print dol_print_date($db->jdate($object->array_options["options_dda"]),'dayhourtextshort');
 		print '</td></tr>';
 
 		// Résultat d'appel
